@@ -3,18 +3,24 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <meta name="theme-color" content="#0f172a" />
+  <meta name="theme-color" content="#b5121b" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <meta name="apple-mobile-web-app-title" content="Nightly Temps" />
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="apple-touch-icon" href="icon-180.png" />
+  <link rel="icon" type="image/png" href="icon-192.png" />
   <title>Temperature Recorder</title>
   <style>
     :root {
-      --bg: #f1f5f9;
+      --bg: #f5f5f4;
       --card: #ffffff;
-      --text: #0f172a;
-      --muted: #64748b;
-      --border: #cbd5e1;
-      --cooler: #dbeafe;
-      --freezer: #e0f2fe;
-      --accent: #2563eb;
+      --text: #202020;
+      --muted: #626262;
+      --border: #dededb;
+      --cooler: #fceced;
+      --freezer: #eeeeed;
+      --accent: #b5121b;
       --success: #16a34a;
       --danger: #dc2626;
     }
@@ -32,14 +38,14 @@
     .app {
       max-width: 720px;
       margin: 0 auto;
-      padding: 14px 12px 32px;
+      padding: max(14px, env(safe-area-inset-top)) 12px max(32px, env(safe-area-inset-bottom));
     }
 
     .topbar {
       position: sticky;
       top: 0;
       z-index: 10;
-      background: rgba(241, 245, 249, 0.96);
+      background: rgba(245, 245, 244, 0.98);
       backdrop-filter: blur(10px);
       padding: 8px 0 12px;
     }
@@ -72,7 +78,7 @@
     }
 
     #wakeBtn {
-      background: #0f172a;
+      background: #202020;
       color: white;
     }
 
@@ -101,7 +107,7 @@
 
     .headers {
       position: sticky;
-      top: 126px;
+      top: var(--toolbar-height, 200px);
       z-index: 8;
       background: var(--bg);
       font-weight: 800;
@@ -189,7 +195,7 @@
         gap: 4px;
       }
       .headers {
-        top: 126px;
+        top: var(--toolbar-height, 200px);
         font-size: 0.8rem;
       }
       .row-number { font-size: 0.78rem; }
@@ -199,11 +205,21 @@
         min-height: 42px;
       }
     }
+    .brand-line { height: 5px; background: var(--accent); margin-bottom: 12px; }
+    .install { display: block; width: 100%; margin-top: 8px; border: 1px solid var(--border); background: white; color: var(--text); }
+    button:focus-visible, summary:focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; }
+    dialog { border: 0; border-top: 5px solid var(--accent); border-radius: 16px; padding: 24px; max-width: min(90vw, 420px); color: var(--text); }
+    dialog::backdrop { background: rgb(0 0 0 / 50%); }
+    dialog h2 { margin-top: 0; }
+    dialog li { margin: 12px 0; line-height: 1.5; }
+    dialog button { background: var(--accent); color: white; width: 100%; }
+    @media (display-mode: standalone) { .install { display: none; } }
   </style>
 </head>
 <body>
   <main class="app">
     <div class="topbar">
+      <div class="brand-line" aria-hidden="true"></div>
       <h1>Nightly Temperature Recorder</h1>
 
       <div class="controls">
@@ -214,6 +230,7 @@
       <div id="wakeStatus" class="status">
         Screen awake mode is off.
       </div>
+      <button class="install" id="installBtn" type="button">＋ Add to iPhone Home Screen</button>
     </div>
 
     <div class="headers">
@@ -227,6 +244,17 @@
     <div id="list" class="list"></div>
   </main>
 
+  <dialog id="installDialog" aria-labelledby="installTitle">
+    <h2 id="installTitle">Add to your iPhone</h2>
+    <ol>
+      <li>Open this page in <strong>Safari</strong> on your iPhone.</li>
+      <li>Tap <strong>Share</strong> (the square with an upward arrow). You may need to open the <strong>More</strong> menu first.</li>
+      <li>Choose <strong>Add to Home Screen</strong>. If it is missing, look under <strong>Edit Actions</strong>.</li>
+      <li>Keep <strong>Open as Web App</strong> enabled if shown, then tap <strong>Add</strong>.</li>
+    </ol>
+    <p>Tap the Nightly Temps icon on your Home Screen to open the app.</p>
+    <form method="dialog"><button>Got it</button></form>
+  </dialog>
   <script>
     const ROW_COUNT = 150;
     const COOLER_MIN = 36.00;
@@ -373,6 +401,12 @@
 
     generateBtn.addEventListener("click", generateRows);
 
+    const toolbar = document.querySelector(".topbar");
+    const updateToolbarHeight = () => document.documentElement.style.setProperty("--toolbar-height", `${toolbar.getBoundingClientRect().height}px`);
+    new ResizeObserver(updateToolbarHeight).observe(toolbar);
+    updateToolbarHeight();
+    document.getElementById("installBtn").addEventListener("click", () => document.getElementById("installDialog").showModal());
+    if (navigator.standalone) document.getElementById("installBtn").hidden = true;
     render();
   </script>
 </body>
