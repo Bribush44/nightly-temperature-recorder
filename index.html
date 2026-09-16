@@ -257,10 +257,10 @@
   </dialog>
   <script>
     const ROW_COUNT = 150;
-    const COOLER_MIN = 36.00;
-    const COOLER_MAX = 40.00;
-    const FREEZER_MIN = 0.00;
-    const FREEZER_MAX = 15.00;
+    const COOLER_MIN = 30.0;
+    const COOLER_MAX = 39.8;
+    const FREEZER_MIN = 0.1;
+    const FREEZER_MAX = 9.8;
 
     const list = document.getElementById("list");
     const remaining = document.getElementById("remaining");
@@ -273,7 +273,7 @@
     let wakeRequested = false;
 
     function randomTemp(min, max) {
-      return (Math.random() * (max - min) + min).toFixed(2);
+      return (Math.random() * (max - min) + min).toFixed(1);
     }
 
     function generateRows() {
